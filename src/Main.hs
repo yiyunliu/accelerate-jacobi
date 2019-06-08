@@ -39,7 +39,7 @@ jacobiIter m d v x = A.zipWith (/) (A.zipWith (A.-) v (mvm m x)) d
 -- | Generate a hardwired RHS of the linear equation
 genVec :: Int -> Vector Double
 genVec dim =
-  fromFunction (Z :. dim) (const (Prelude.fromIntegral $ 3 Prelude .* dim - 1))
+  fromFunction (Z :. dim) (const (Prelude.fromIntegral $ 3 Prelude.* dim - 1))
 
 -- | Acc version of iterate
 aiterate ::
