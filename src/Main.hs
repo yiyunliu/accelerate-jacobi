@@ -8,9 +8,9 @@ module Main where
 
 import Control.Applicative (liftA2)
 import Data.Array.Accelerate as A
-import Data.Array.Accelerate.LLVM.Native as CPU
+-- import Data.Array.Accelerate.LLVM.Native as GPU
+import Data.Array.Accelerate.LLVM.PTX as GPU
 import Criterion.Main
-import Control.DeepSeq
 
 
 -- | Dot product. stolen from accelerate's doc
@@ -24,7 +24,7 @@ error2 v = A.map A.sqrt . A.fold (A.+) 0 . A.map (A.** 2) . A.zipWith (-) v
 -- | Matrix multiplication. stolen from accelerate's doc
 mvm :: A.Num a => Acc (Matrix a) -> Acc (Vector a) -> Acc (Vector a)
 mvm mat vec =
-  let Z :. rows :. cols = unlift (shape mat) :: Z :. Exp Int :. Exp Int
+  let Z :. rows :. _ = unlift (shape mat) :: Z :. Exp Int :. Exp Int
       vec' = A.replicate (lift (Z :. rows :. All)) vec
    in A.fold (+) 0 (A.zipWith (*) mat vec')
 
@@ -87,22 +87,22 @@ genTest k dim =
       (r, d) = unlift . decompose $ m
       computation =
         aiterate (A.unit $ A.lift k) (jacobiIter r d ubvec) (fill (shape d) 0)
-      error = error2 (mvm m computation) ubvec in
-    A.lift (computation, error)
+      calcerror = error2 (mvm m computation) ubvec in
+    A.lift (computation, calcerror)
 
 -- main :: IO ()
 -- main = do
 --   k :: Int <- readLn
 --   -- read the number d, where the dimension dim = 2^d
 --   dim :: Int <- (2 Prelude.^) <$> readLn
---   -- construct the computation and send everything to the CPU/GPU
---   print . CPU.run $ genTest 100 (2 Prelude.^ 14)
+--   -- construct the computation and send everything to the GPU/GPU
+--   print . Prelude.snd . GPU.run $ genTest (lift k) (lift dim)
 
 main :: IO ()
 main
  = defaultMain
-  [ bench "16 Iterations, 2^12 Dimensions" $ nf CPU.run (genTest 16 (2 Prelude.^ 12))
-  , bench "100 Iterations, 2^12 Dimensions" $ nf CPU.run (genTest 100 (2 Prelude.^ 12))
-  , bench "16 Iterations, 2^14 Dimensions" $ nf CPU.run (genTest 16 (2 Prelude.^ 14))
+  [ bench "16 Iterations, 2^12 Dimensions" $ nf GPU.run (genTest 16 (2 A.^ (12 :: Exp Int)))
+  , bench "100 Iterations, 2^12 Dimensions" $ nf GPU.run (genTest 100 (2 A.^ (12 :: Exp Int)))
+  , bench "16 Iterations, 2^13 Dimensions" $ nf GPU.run (genTest 16 (2 A.^ (13 :: Exp Int)))
   ]
 
