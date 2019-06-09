@@ -8,8 +8,8 @@ module Main where
 
 import Control.Applicative (liftA2)
 import Data.Array.Accelerate as A
--- import Data.Array.Accelerate.LLVM.Native as GPU
-import Data.Array.Accelerate.LLVM.PTX as GPU
+import Data.Array.Accelerate.LLVM.Native as GPU
+-- import Data.Array.Accelerate.LLVM.PTX as GPU
 import Criterion.Main
 
 

@@ -22,5 +22,4 @@ executable accelerate-jacobi
                      , accelerate-llvm-native
                      , criterion
                      , deepseq
-                     , accelerate-llvm-ptx
   ghc-options:         -rtsopts -threaded -Wall
