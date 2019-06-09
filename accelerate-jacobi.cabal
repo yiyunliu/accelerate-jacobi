@@ -20,4 +20,6 @@ executable accelerate-jacobi
   build-depends:       base >= 4.7 && < 5
                      , accelerate
                      , accelerate-llvm-native
+                     , criterion
+                     , deepseq
   ghc-options:         -rtsopts -threaded
